@@ -33,7 +33,7 @@ class Env:
         
         # Number of features
         assert len(self.env.observation_space.shape) == 1
-        self.num_features = self.env.reset().shape[0]
+        self.num_features = self.env.reset()[0].shape[0]
 
         # Support for state normalization or using time as a feature
         self.state_filter = Identity()
@@ -55,14 +55,14 @@ class Env:
 
     def reset(self):
         # Reset the state, and the running total reward
-        start_state = self.env.reset()
+        start_state = self.env.reset()[0]
         self.total_true_reward = 0.0
         self.counter = 0.0
         self.state_filter.reset()
         return self.state_filter(start_state, reset=True)
 
     def step(self, action):
-        state, reward, is_done, info = self.env.step(action)
+        state, reward, is_done, _, info = self.env.step(action)
         state = self.state_filter(state)
         self.total_true_reward += reward
         self.counter += 1
