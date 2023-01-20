@@ -7,7 +7,7 @@ import json
 
 agent_configs = sys.argv[1]
 q = JoinableQueue()
-NUM_THREADS = 40
+NUM_THREADS = 2
 
 def run_single_config(queue):
     while True:
@@ -20,12 +20,13 @@ def run_single_config(queue):
             raise e
         queue.task_done()
 
-for i in range(NUM_THREADS):
-    worker = Process(target=run_single_config, args=(q,))
-    worker.daemon = True
-    worker.start()
+if __name__ == "__main__":
+    for i in range(NUM_THREADS):
+        worker = Process(target=run_single_config, args=(q,))
+        worker.daemon = True
+        worker.start()
 
-for fname in glob(path.join(agent_configs, "*.json")):
-    q.put(fname)
+    for fname in glob(path.join(agent_configs, "*.json")):
+        q.put(fname)
 
-q.join()
+    q.join()
